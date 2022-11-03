@@ -15,9 +15,16 @@
     <script src="js/jquery-3.6.1.min.js"></script>
     <script src="js/jquery-ui.min.js"></script>
     <script src="js/jquery-csv.min.js"></script>
+    <script src="js/lodash.min.js"></script> <!-- https://cdn.jsdelivr.net/npm/lodash@4.17.21/lodash.min.js -->
+    <script src="js/jquery.mark.min.js"></script> <!-- https://markjs.io/configurator.html -->
 </head>
 
 <body>
+    <div id="parent-spinner">
+        <div class="cv-spinner">
+            <span class="spinner"></span>
+        </div>
+    </div>
     <div class="section">
         <div class="container">
             <div class="row justify-content-start">
@@ -64,21 +71,54 @@
 </html>
 <script>
     var delay
+    var csvSearchArr
+
+    $(document).ajaxSend(function () {
+        $("#parent-spinner").fadeIn(100)
+    })
     $(document).ready(function () {
         $('#search').on('input', function (e) {
-            $('.result').text($(this).val())
+            var searchField = $(this).val().toLowerCase()
             clearTimeout(delay)
             delay = setTimeout(function () {
                 $.ajax({
                     url: "etc/dictionary.csv",
                     async: false,
                     success: function (csvd) {
-                        var items = $.csv.toObjects(csvd)
-                        var jsonobject = JSON.stringify(items)
-                        console.log(items)
+                        //pass 
+                        csvSearchArr = $.csv.toObjects(csvd)
+                        //remove if different from search field text
+                        csvSearchArr = csvSearchArr.filter(v => v.A.toLowerCase() ==
+                            searchField)
+                        //clear result
+                        $('.result').html('')
+                        //sorting number
+                        var number = 0
+                        if (csvSearchArr.length == 0) {
+                            $('.result').text('Not found, try again.')
+                            return
+                        }
+                        csvSearchArr.map(function (search) {
+                            var searchKeyNames = Object.keys(search)
+                            var searchItem = search.A.toLowerCase()
+                            if (searchItem != searchField) return
+                            number++
+                            $('.result').append(
+                                '<div class="result-child"> ' + number +
+                                '. ' +
+                                search[
+                                    searchKeyNames[2]] +
+                                '</div>')
+                        })
                     },
                     dataType: "text",
-                    complete: function () {}
+                    complete: function () {
+                        //highlight the search text 
+                        $(".result-child").each(function () {
+                            $(this).mark(searchField)
+                        })
+                        $("#parent-spinner").fadeOut(1000)
+                    }
                 })
             }, 1000) // Will do the ajax stuff after 1000 ms
         })
