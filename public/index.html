@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+    <title>Simple Search Dictionary</title>
+
+    <!-- Bootstrap -->
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://unicons.iconscout.com/release/v4.0.0/css/unicons.css" />
+    <link rel="stylesheet" href="css/style.css" />
+    <script src="js/jquery-3.6.1.min.js"></script>
+    <script src="js/jquery-ui.min.js"></script>
+    <script src="js/jquery-csv.min.js"></script>
+</head>
+
+<body>
+    <div class="section">
+        <div class="container">
+            <div class="row justify-content-start">
+                <div class="col-12 text-center align-self-start py-2">
+                    <div class="section pb-2 pt-2 pt-sm-2 text-center">
+                        <div class="card-3d-wrap">
+                            <div class="card-3d-wrapper">
+                                <div class="card-front">
+                                    <div class="center-wrap">
+                                        <div class="section text-center">
+                                            <h4 class="mt-5">Simple Dictionary</h4>
+                                            <div class="form-group">
+                                                <input type="search" id="search" class="form-style text-center mt-1"
+                                                    placeholder="Eg: Sea" autocomplete="off">
+                                                <i class="input-icon uil uil-at"></i>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row justify-content-start">
+                <div class="col-12 text-center align-self-start py-2">
+                    <div class="section pb-2 pt-2 pt-sm-2 text-center">
+                        <div class="card-3d-result">
+                            <div class="section text-center">
+                                <div class="text-left">
+                                    Result:
+                                </div>
+                                <div class="result text-center card-result">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>
+<script>
+    var delay
+    $(document).ready(function () {
+        $('#search').on('input', function (e) {
+            $('.result').text($(this).val())
+            clearTimeout(delay)
+            delay = setTimeout(function () {
+                $.ajax({
+                    url: "etc/dictionary.csv",
+                    async: false,
+                    success: function (csvd) {
+                        var items = $.csv.toObjects(csvd)
+                        var jsonobject = JSON.stringify(items)
+                        console.log(items)
+                    },
+                    dataType: "text",
+                    complete: function () {}
+                })
+            }, 1000) // Will do the ajax stuff after 1000 ms
+        })
+    })
+</script>
